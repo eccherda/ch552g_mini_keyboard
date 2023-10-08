@@ -73,10 +73,18 @@ enum auto_status_t
 };
 enum auto_status_t auto_status = AUTO_STOP;
 int auto_count = 0;
+int auto_circle = 1;
 
 enum mode_t current_mode = MODE_1;
 enum mode_t menu_mode = MODE_1;
 
+enum led_mode_t
+{
+  LED_LOOP,
+  LED_FIX,
+  LED_BLINK
+};
+enum led_mode_t led_mode = LED_LOOP;
 int color_hue[3] = {0, 0, 0}; // hue value: 0..191 color map
 
 // ===================================================================================
@@ -91,6 +99,43 @@ inline void BOOT_now(void)
 }
 
 // ===================================================================================
+// Color section
+// ============================================================================
+
+
+void led_set_mode(enum led_mode_t mode)
+{
+  led_mode = mode;
+  switch (mode)
+  {
+  case LED_LOOP:
+    color_hue[0] = NEO_RED;
+    color_hue[1] = NEO_YEL;
+    color_hue[2] = NEO_GREEN;
+    break;
+  }
+}
+void led_update()
+{
+  if ( led_mode == LED_LOOP)
+  {
+    for (int i = 0; i < 3; i++)
+    {
+      color_hue[i] += 1;
+      if (color_hue[i] > 191)
+      {
+        color_hue[i] = 0;
+      }
+    }
+  }
+
+  NEO_writeHue(0, color_hue[0], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
+  NEO_writeHue(1, color_hue[1], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
+  NEO_writeHue(2, color_hue[2], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
+  NEO_update();                                   // update pixels
+}
+
+// ===================================================================================
 // Auto section
 // ===================================================================================
 
@@ -99,6 +144,9 @@ void auto_start()
   color_hue[0] = NEO_GREEN;
   color_hue[1] = NEO_GREEN;
   color_hue[2] = NEO_GREEN;
+  led_update();
+  delay(500);
+  led_set_mode(LED_LOOP);
   auto_status = AUTO_RUN;
 }
 
@@ -107,8 +155,30 @@ void auto_stop()
   color_hue[0] = NEO_RED;
   color_hue[1] = NEO_RED;
   color_hue[2] = NEO_RED;
+  led_update();
+  delay(500);
+  led_set_mode(LED_LOOP);
   auto_status = AUTO_STOP;
 }
+
+void increase_circle()
+{
+  auto_circle++;
+  if (auto_circle > 10)
+  {
+    auto_circle = 10;
+  }
+}
+
+void decrease_circle()
+{
+  auto_circle--;
+  if (auto_circle < 1)
+  {
+    auto_circle = 1;
+  }
+}
+
 
 
 void auto_update()
@@ -124,19 +194,19 @@ void auto_update()
   // create a cicle with mouse
   if (auto_count < 25)
   {
-    Mouse_move(3, 0);
+    Mouse_move(auto_circle, 0);
   }
   else if (auto_count < 50)
   {
-    Mouse_move(0, 3);
+    Mouse_move(0, auto_circle);
   }
   else if (auto_count < 75)
   {
-    Mouse_move(-3, 0);
+    Mouse_move(-auto_circle, 0);
   }
   else if (auto_count < 100)
   {
-    Mouse_move(0, -3);
+    Mouse_move(0, -auto_circle);
   }
   auto_count++;
   if (auto_count > 100)
@@ -151,21 +221,22 @@ void auto_update()
 
 void set_menu_led()
 {
+  led_set_mode(LED_FIX);
   switch (menu_mode)
   {
   case MODE_1:
     color_hue[0] = NEO_RED;
-    color_hue[1] = NEO_YEL;
-    color_hue[2] = NEO_YEL;
+    color_hue[1] = NEO_BLUE;
+    color_hue[2] = NEO_BLUE;
     break;
   case MODE_2:
-    color_hue[0] = NEO_YEL;
+    color_hue[0] = NEO_BLUE;
     color_hue[1] = NEO_RED;
-    color_hue[2] = NEO_YEL;
+    color_hue[2] = NEO_BLUE;
     break;
   case MODE_AUTO:
-    color_hue[0] = NEO_YEL;
-    color_hue[1] = NEO_YEL;
+    color_hue[0] = NEO_BLUE;
+    color_hue[1] = NEO_BLUE;
     color_hue[2] = NEO_RED;
     break;
   }
@@ -259,10 +330,10 @@ void Keyboard_press_mode_2(enum button_t button, enum button_mode_t mode)
     }
     break;
   case ENC_CW:
-    Keyboard_write('5');
+    Mouse_scroll(1);
     break;
   case ENC_CCW:
-    Keyboard_write('6');
+    Mouse_scroll(-1);
     break;
   default:
     break;
@@ -289,10 +360,10 @@ void Keyboard_press_auto(enum button_t button, enum button_mode_t mode)
     }
     break;
   case ENC_CW:
-    enter_menu();
+    increase_circle();
     break;
   case ENC_CCW:
-    Keyboard_write('y');
+    decrease_circle();
     break;
   default:
     break;
@@ -313,10 +384,11 @@ void Keyboard_press_menu(enum button_t button, enum button_mode_t mode)
 
     break;
   case BTN_ENC:
-    current_mode = menu_mode;
-    color_hue[0] = NEO_GREEN;
-    color_hue[1] = NEO_GREEN;
-    color_hue[2] = NEO_GREEN;
+    if (mode == BTM_RELEASE)
+    {
+      current_mode = menu_mode;
+      led_set_mode(LED_LOOP);
+    }
     return;
     break;
   case ENC_CW:
@@ -405,17 +477,7 @@ void encoder_update()
   }
 }
 
-// ===================================================================================
-// Color section
-// ============================================================================
 
-void update_color()
-{
-  NEO_writeHue(0, color_hue[0], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
-  NEO_writeHue(1, color_hue[1], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
-  NEO_writeHue(2, color_hue[2], NEO_BRIGHT_KEYS); // light up corresponding NeoPixel
-  NEO_update();                                   // update pixels
-}
 
 // ===================================================================================
 // Main section
@@ -437,6 +499,7 @@ void setup()
   }
 
   encoder_setup();
+  led_set_mode(LED_LOOP);
   USBInit();
 }
 
@@ -505,6 +568,6 @@ void loop()
   }
   auto_update();
   encoder_update();
-  update_color();
+  led_update();
   delay(5); // debouncing
 }
