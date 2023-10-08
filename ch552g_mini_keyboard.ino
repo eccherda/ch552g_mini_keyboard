@@ -1,4 +1,3 @@
-
 #ifndef USER_USB_RAM
 #error "Require USB RAM. Go Tools > USB Setting and pick the 2nd option in the dropdown list"
 #endif
@@ -6,6 +5,7 @@
 #include "src/userUsbHidMediaKeyboard/USBHIDMediaKeyboard.h"
 #include "src/neo/neo.h"
 #include "win-zh_util.h"
+
 ////////////// HARDWARE CONFIG //////////
 
 //Button (Mechnical, left to right)
@@ -25,7 +25,8 @@
 
 #define LED_PIN 34 //Pin for the LED strip, configure neo leds in src/neo/config.h
 
-
+#define ENCODER_A 31
+#define ENCODER_B 30
 
 ///////////////// RUNTIME ///////////////
 //Previous button states
@@ -40,10 +41,7 @@ bool bt2Active = false;
 bool bt3Active = false;
 bool btEncActive = false;
 
-////////////// Special Hotkeys //////////////////
-//When Button 2 is hold in mode A, activate volume Mode to
-//allow button 3 and 4 to change volume instead of prev / next song
-bool volMode = false;
+
 
 // ===================================================================================
 // Move to internal Bootloader
@@ -57,7 +55,58 @@ inline void BOOT_now(void) {
   __endasm;
 }
 
+// Encoder selated functions 
 
+int color_hue = 0;   
+
+
+void update_color() {
+  NEO_writeHue(0, color_hue, NEO_BRIGHT_KEYS);    // light up corresponding NeoPixel
+  NEO_writeHue(1, color_hue, NEO_BRIGHT_KEYS);    // light up corresponding NeoPixel
+  NEO_writeHue(2, color_hue, NEO_BRIGHT_KEYS);    // light up corresponding NeoPixel
+  NEO_update();                             // update pixels
+}
+
+void encoder_cw() {
+  color_hue += 5;   
+  if (color_hue > 160){                       // increase hue by 32 (1/6 of 192)
+    color_hue = 160;                          // wrap around at 192
+  }
+  Keyboard_write('P');
+  update_color();                            // update pixels
+}
+
+void encoder_ccw() {
+  color_hue -= 5;   
+  if (color_hue <= 0){                       // increase hue by 32 (1/6 of 192)
+    color_hue = 0;                          // wrap around at 192
+  }
+  Keyboard_write('M');
+  update_color();                            // update pixels
+}
+
+void encoder_setup() {
+  pinMode(ENCODER_A, INPUT_PULLUP);
+  pinMode(ENCODER_B, INPUT_PULLUP);
+
+}
+
+void encoder_update() {
+  if(!digitalRead(ENCODER_A)) {                    // encoder turned ?
+      if(digitalRead(ENCODER_B)) {                   // clockwise ?
+        encoder_cw();
+        delay(5);
+      }
+      else {                                      // counter-clockwise ?
+        encoder_ccw();
+        delay(5);
+      }
+      while(!digitalRead(ENCODER_A));                // wait until next detent
+      Keyboard_write('Q');
+    } 
+}
+
+// Initialize pins
 void setup() {
 
   NEO_init();
@@ -70,6 +119,8 @@ void setup() {
     BOOT_now(); 
   }
 
+  
+  encoder_setup();
   USBInit();
 
 
@@ -126,8 +177,10 @@ void loop() {
       NEO_update();
     }
   }
+  encoder_update();
+
+  
 
 
-
-  delay(50);  //naive debouncing
+  delay(5);  //naive debouncing
 }
