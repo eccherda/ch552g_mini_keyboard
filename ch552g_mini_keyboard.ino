@@ -2,7 +2,7 @@
 #error "Require USB RAM. Go Tools > USB Setting and pick the 2nd option in the dropdown list"
 #endif
 
-#include "src/userUsbHidMediaKeyboard/USBHIDMediaKeyboard.h"
+#include "src/userUsbHidKeyboardMouse/USBHIDKeyboardMouse.h"
 #include "src/neo/neo.h"
 #include "win-zh_util.h"
 
