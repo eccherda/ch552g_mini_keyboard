@@ -5,30 +5,21 @@ This project began with the purchase of a compact USB keyboard with three keys f
 
 I decided to open it and try to program it myself.
 
-![Keyboard](https://github.com/eccherda/ch552g_mini_keyboard/blob/master/image.jpg?raw=true)
+![Keyboard](https://https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/keyboard.jpeg?raw=true)
+
+![Keyboard](https://https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/key_menu.gif?raw=true)
+
 
 ## What's Inside
 
 The core of the board features a wch-ic CH552G microcontroller, three buttons, a rotary encoder, and three addressable LEDs.
 
-![Keyboard](https://github.com/eccherda/ch552g_mini_keyboard/blob/master/image.jpg?raw=true)
+![Keyboard](https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/bottom.jpeg?raw=true)
 
 ## CH552G microcontroller
 
-![Keyboard](https://github.com/eccherda/ch552g_mini_keyboard/blob/master/image.jpg?raw=true)
+![Keyboard](https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/ch552g.png?raw=true)
 
-## Resources
-
-Here are the resources I found for reprogramming the firmware:
-
-- [How to Program a Really Cheap Microcontroller](https://hackaday.com/2019/02/17/how-to-program-a-really-cheap-microcontroller/#more-345535)
-- [RGB Macropad Custom Firmware](https://hackaday.io/project/189914-rgb-macropad-custom-firmware)
-- [CH552G Macropad Plus](https://oshwlab.com/wagiminator/ch552g-macropad-plus)
-- [ch554_sdcc on GitHub](https://github.com/Blinkinlabs/ch554_sdcc)
-- [ch55xduino on GitHub](https://github.com/DeqingSun/ch55xduino)
-- [CH552G Product Page](https://www.esclabs.in/product/ch552g-8-bit-usb-device-microcontroller/)
-- [LCSC Product Page](https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_WCH-Jiangsu-Qin-Heng-CH552G_C111292.html?utm_source=digipart&utm_medium=cpc&utm_campaign=CH552G)
-- [CH552G Datasheet](http://www.wch-ic.com/downloads/file/309.html)
 
 ## How to Build
 
@@ -50,42 +41,20 @@ This firmware uses the Arduino platform to simplify the build process. I built i
 
 ## Setting up the Keyboard in Bootloader Mode
 
-To set the keyboard in bootloader mode, connect pin P3.6 to a 10K pullup to Vcc. To do this, short R12 pin and connect the board to a PC. Now you can flash the firmware. Once this firmware is flashed, to return to bootloader mode, connect the USB interface while pressing the encoder button.
+To program set the keyboard in bootloader mode, connect pin P3.6 to a 10K pullup to Vcc. To do this, short R12 pin and connect the board to a PC. Now you can flash the firmware. Once this firmware is flashed, to return to bootloader mode, connect the USB interface while pressing the encoder button or press all the button contemporaneusly
 
-See `ch552g_mini_keyboard.ino` line 70:
-
-```cpp
-  // Go into bootloader mode if connected with encoder button pressed
-  if (!digitalRead(PIN_BTN_ENC))
-  {
-    NEO_writeHue(0, NEO_CYAN, NEO_BRIGHT_KEYS); // set led1 to cyan
-    NEO_writeHue(1, NEO_BLUE, NEO_BRIGHT_KEYS); // set led2 to blue
-    NEO_writeHue(2, NEO_MAG, NEO_BRIGHT_KEYS); //  set led3 to magenta
-    NEO_update();                              // update pixels
-    BOOT_now();     // jump to bootloader
-  }
-```
+![Keyboard](https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/short.jpeg?raw=true)
 
 # Firmware feature
 
 This firmware as can setup keyboard in different configuration.
-To change configuration keep press rotary ecoder and change configuration.
-Corrent configuration are:
-* 1 PC
-   * Button 1 CTRL+c
-   * Button 2 CTRL+v
-   * Button 3 CTRL+q
-   * Rotary encoder: mouse scroll
-* 1 MAC
-   * Button 1 CMD+c
-   * Button 2 CMD+v
-   * Button 3 CTCMDRL+q
-   * Rotary encoder: mouse scroll
-* 2 MAAUTOC
-   * Button 1 Start auto: mouse start mooving on screen
-   * Button 2 StaStoprt auto: mouse stop mooving on screen
-   * Button 3 NA 
-   * Rotary encoder: change mouse size
+Edit configuration.cpp to change it
+To change configuration keep press rotary encoder and change configuration.
+
+On configurtion is possible to send keyboard or mous event and setup automatic cycle rutine
+
+![Keyboard](https://gitlab.com/eccherda/ch552g_mini_keyboard/blob/master/key_menu.gif?raw=true)
+
 
 ## Pinout
 /* KEY MAPPING */
@@ -99,3 +68,17 @@ ENCODER A: P31
 ENCODER B: P30
 
 LED: P34
+
+## Resources
+
+Here are the resources I found for reprogramming the firmware:
+
+- [How to Program a Really Cheap Microcontroller](https://hackaday.com/2019/02/17/how-to-program-a-really-cheap-microcontroller/#more-345535)
+- [RGB Macropad Custom Firmware](https://hackaday.io/project/189914-rgb-macropad-custom-firmware)
+- [CH552G Macropad Plus](https://oshwlab.com/wagiminator/ch552g-macropad-plus)
+- [ch554_sdcc on GitHub](https://github.com/Blinkinlabs/ch554_sdcc)
+- [ch55xduino on GitHub](https://github.com/DeqingSun/ch55xduino)
+- [CH552G Product Page](https://www.esclabs.in/product/ch552g-8-bit-usb-device-microcontroller/)
+- [LCSC Product Page](https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_WCH-Jiangsu-Qin-Heng-CH552G_C111292.html?utm_source=digipart&utm_medium=cpc&utm_campaign=CH552G)
+- [CH552G Datasheet](http://www.wch-ic.com/downloads/file/309.html)
+
