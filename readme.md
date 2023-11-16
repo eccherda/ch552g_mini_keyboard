@@ -408,3 +408,9 @@ Here are the resources I used for reprogramming the firmware:
 - [LCSC Product Page](https://www.lcsc.com/product-detail/Microcontroller-Units-MCUs-MPUs-SOCs_WCH-Jiangsu-Qin-Heng-CH552G_C111292.html?utm_source=digipart&utm_medium=cpc&utm_campaign=CH552G)
 - [CH552G Datasheet](http://www.wch-ic.com/downloads/file/309.html)
 
+
+# License
+![license.png](https://i.creativecommons.org/l/by-sa/3.0/88x31.png)
+
+This work is licensed under Creative Commons Attribution-ShareAlike 3.0 Unported License. 
+(http://creativecommons.org/licenses/by-sa/3.0/)
