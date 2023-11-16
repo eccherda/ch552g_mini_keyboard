@@ -1,5 +1,6 @@
 // clang-format off
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
 #include "include/ch5xx.h"
 #include "include/ch5xx_usb.h"
@@ -307,12 +308,14 @@ uint8_t Keyboard_getLEDStatus() {
 }
 
 uint8_t Mouse_press(__data uint8_t k) {
+  memset(HIDMouse, 0, sizeof(HIDMouse));
   HIDMouse[0] |= k;
   USB_EP1_send(2);
   return 1;
 }
 
 uint8_t Mouse_release(__data uint8_t k) {
+  memset(HIDMouse, 0, sizeof(HIDMouse));
   HIDMouse[0] &= ~k;
   USB_EP1_send(2);
   return 1;
@@ -326,6 +329,7 @@ uint8_t Mouse_click(__data uint8_t k) {
 }
 
 uint8_t Mouse_move(__data int8_t x, __xdata int8_t y) {
+  memset(HIDMouse, 0, sizeof(HIDMouse));
   HIDMouse[1] = x;
   HIDMouse[2] = y;
   USB_EP1_send(2);
@@ -333,6 +337,7 @@ uint8_t Mouse_move(__data int8_t x, __xdata int8_t y) {
 }
 
 uint8_t Mouse_scroll(__data int8_t tilt) {
+  memset(HIDMouse, 0, sizeof(HIDMouse));
   HIDMouse[3] = tilt;
   USB_EP1_send(2);
   return 1;
